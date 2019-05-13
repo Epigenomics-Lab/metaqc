@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="" content="IE=edge">
+	<meta name="description" content="" />
+	<title>MetaQC Quality Control Reports</title>
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/xenon-core.css">
+	<script src="js/jquery-1.11.1.min.js"></script>
+	<script src="js/plotly-latest.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/TweenMax.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<script src="js/jquery.tocify.min.js"></script>
+	<script src="js/xenon-custom.js"></script>
+	<style>
+		img{
+			margin: 20px 0 20px 0;
+		}
+		.tocify .tocify-item.active > a:after {
+			display:none;
+		}
+		.tocify .tocify-item.active > a:before {
+			display:none;
+		}
+		.tocify{
+				width:235px !important;
+			    font-weight: bold !important;
+				 }
+		@media screen and (max-width: 768px){
+			.navbar.horizontal-menu .navbar-inner {
+				background: #ffffff;
+			}
+		}
+		th {
+			text-align:center !important;
+		}
+	</style>
+</head>
+<body class="page-body">
+<nav class="navbar horizontal-menu navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="navbar-brand">
+			  <h1 style="font-weight:bolder;color:#1d355d">MetaQC Quality Control Reports</h1>
+		</div>
+		<div class="nav navbar-mobile">
+		</div>
+		<div class="navbar-mobile-clear"></div>
+	</div>
+</nav>
+
+<script>
+    $(document).ready(function(){
+//        var navtop=$("#header").offset().top;
+        $(document).scroll(function(){
+            var scroltop=$(document).scrollTop();
+//            console.log(scroltop)
+            if (scroltop >85){
+                $(".navbar").css({
+                    "position":"fixed",
+                    "height":"60px"
+                })
+
+                $(".logo>h1").css({
+                    "font-size":"23px",
+                    "margin-top":"-10px"
+                })
+                $(".tocify").css({
+                    "margin-top":"90px"
+                })
+            }else {
+                $(".navbar").css({
+                    "position":"",
+                    "height":"60px"
+                })
+                $(".logo>h1").css({
+                    "font-size":"23px",
+                    "margin-top":"-10px"
+                })
+                $(".tocify").css({
+                    "margin-top":"0x"
+                })
+            }
+        })
+    })
+</script>
+<script>
+    var clickhref = $("#top").find(".topLink")
+    clickhref.on("click",function(){
+        var height = $("#header").height()
+        if(height == 100){
+            $("html, body").animate({
+                scrollTop: $($(this).attr("href")).offset().top -220+ "px"
+            }, {
+                duration: 500,
+                easing: "swing"
+            });
+        }else {
+            $("html, body").animate({
+                scrollTop: $($(this).attr("href")).offset().top -80+ "px"
+            }, {
+                duration: 500,
+                easing: "swing"
+            });
+        }
+    });
+</script>
+
+
+<div class="page-container"><!--页面主体-->
+		<div class="main-content"><!--页面主体-->
+			<div class="row"><!--页面主体-->
+				<div class="col-md-3">
+					<div id="toc"></div>
+				</div><!--左侧导航是下方版块动态传入-->
+				<div class="col-md-9">
+					<div class="tocify-content">
+						<div class="icon-collection">
+							<div id="new">
+								<h2 class="page-header" style="margin-top: 96px;">Uniquely Mapping Ratio</h2><!--需要传入的左侧导航栏标题-->
+								<div class="fontawesome-icon-list">
+									<div class="table table-bordered-responsive">
+										<table class="table  table-bordered table-striped table-hover "><!--版块内表格-->
+											<thead>
+											<tr>
+												<th align="right"  width="20%">Replicates</th>
+												<th>Samples</th>
+												<th>Types</th>
+												<th>Uniquely Mapping Read Counts</th>
+												<th>Total Read Counts</th>
+												<th>Uniquely Mapping Ratio</th>
+											</tr>
+											</thead>
+											<tbody>
+											<tr>
+												<td>rep1</td>
+												<td>GSM1272362</td>
+												<td>IP</td>
+												<td>10356653</td>
+												<td>17608808</td>
+												<td>58.82%</td>
+											</tr>
+											<tr>
+												<td>rep1</td>
+												<td>GSM1272361</td>
+												<td>INPUT</td>
+												<td>17721181</td>
+												<td>22244874</td>
+												<td>79.66%</td>
+											</tr>
+											</tbody>
+										</table>
+									</div>
+									<div id="myDiv" style="width: 100%"></div>
+									<script>
+                                        var trace1 = {
+                                            x:['rep1'],
+                                            y:[58.82],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A ',
+                                                opacity: 0.5
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1'],
+                                            y:[79.66],
+                                            name: 'INPUT',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#21B4B7',
+                                                opacity: 0.5
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            barmode: 'group',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Uniquely Mapping Ratio',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Uniquely Mapping Ratio (%)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.8
+                                        };
+                                        Plotly.newPlot('myDiv', data, layout);
+									</script>
+								</div><!--对应的右侧内容-->
+							</div>
+							<section id="web-application">
+								<h2 class="page-header">Nonredundant Fraction (NRF)</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover ">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>Uniquely Mapping Location Counts</th>
+											<th>Uniquely Mapping Read Counts</th>
+											<th>NRF</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272362</td>
+											<td>IP</td>
+											<td>3373672</td>
+											<td>10356653</td>
+											<td>32.57%</td>
+										</tr>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272361</td>
+											<td>INPUT</td>
+											<td>6495068</td>
+											<td>17721181</td>
+											<td>36.65%</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv1"></div>
+									<script>
+                                        var trace1 = {
+                                            x:['rep1'],
+                                            y:[32.57],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A ',
+                                                opacity: 0.8
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1'],
+                                            y:[36.65],
+                                            name: 'INPUT',
+                                            type: 'bar', marker: {
+                                                color: '#21B4B7',
+                                                opacity: 0.8
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            barmode: 'group',
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Nonredundant Fraction (NRF)',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'NRF (%)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.8
+                                        };
+                                        Plotly.newPlot('myDiv1', data, layout);
+									</script>
+
+								</div>
+							</section>
+							<section id="file-type">
+								<h2 class="page-header">PCR Bottleneck Coefficient (PBC)</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>One Read Mapping Location Counts</th>
+											<th>Uniquely Mapping Location Counts</th>
+											<th>PBC</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272362</td>
+											<td>IP</td>
+											<td>1977381</td>
+											<td>3373672</td>
+											<td>0.5861</td>
+										</tr>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272361</td>
+											<td>INPUT</td>
+											<td>4293241</td>
+											<td>6495068</td>
+											<td>0.6610</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv2"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var trace1 = {
+                                            x:['rep1'],
+                                            y:[0.5861],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A'
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1'],
+                                            y:[0.6610],
+                                            name: 'INPUT',
+                                            type: 'bar', marker: {
+                                                color: '#21B4B7'
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            barmode: 'group',
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'PCR Bottleneck Coefficient (PBC)',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'PBC',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.8
+                                        };
+                                        Plotly.newPlot('myDiv2', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="spinner">
+								<h2 class="page-header">rRNA & tRNA Contamination Ratio</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover ">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>rRNA Mapping Read Counts</th>
+											<th>tRNA Mapping Read Counts</th>
+											<th>Mapping Read Counts</th>
+											<th>Contamination Ratio</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272362</td>
+											<td>IP</td>
+											<td>137318</td>
+											<td>1553</td>
+											<td>11544555</td>
+											<td>1.20%</td>
+										</tr>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272361</td>
+											<td>INPUT</td>
+											<td>250727</td>
+											<td>13979</td>
+											<td>20805586</td>
+											<td>1.27%</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv3"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var trace1 = {
+                                            x:['rep1'],
+                                            y:[1.20],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A'
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1'],
+                                            y:[1.27],
+                                            name: 'INPUT',
+                                            type: 'bar', marker: {
+                                                color: '#21B4B7'
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            barmode: 'group',
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'rRNA & tRNA Contamination Ratio',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Contamination Ratio (%)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.8
+                                        };
+                                        Plotly.newPlot('myDiv3', data, layout);
+									</script>
+									<!--<img style="width:100%"  src='img/contamination.png'/>-->
+								</div>
+							</section>
+							<section id="form-control">
+								<h2 class="page-header">Library Saturation</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>Detected Gene Counts</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272362</td>
+											<td>IP</td>
+											<td>18370</td>
+										</tr>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272361</td>
+											<td>INPUT</td>
+											<td>18778</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv8"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var trace1 = {
+                                            x: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100],
+                                            y: [0,4714,6797,8156,9157,9877,10513,10994,11379,11768,12107,12653,13116,13514,13841,14154,14752,15240,15646,15981,16324,16597,17019,17450,17805,18117,18370],
+                                            mode: 'lines',
+                                            name: 'IP_rep1',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100],
+                                            y: [0,7275,9809,11048,11829,12387,12817,13176,13505,13805,14058,14457,14798,15088,15360,15586,16025,16387,16719,16960,17186,17398,17794,18103,18380,18604,18778],
+                                            mode: 'lines',
+                                            name: 'INPUT_rep1',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                       
+                                        var data = [trace2, trace1];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Library Saturation',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Gene Counts',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                                xaxis: {
+                                                    title: 'Read Fraction (%)',
+                                                    titlefont: {
+                                                        // family: '黑体',
+                                                        size: 18,
+                                                        weight: 500,
+                                                        color: '#000000'
+                                                    }
+                                                }
+                                        }
+                                        Plotly.newPlot('myDiv8', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="payment">
+								<h2 class="page-header">Read Distribution Dispersion (RDD)</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>IP Sample</th>
+											<th>INPUT Sample</th>
+											<th>IP Median</th>
+											<th>INPUT Median</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272362</td>
+											<td>GSM1272361</td>
+											<td>8.94</td>
+											<td>11.43</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="boxPlot1"></div>
+									<script>
+                                        var x = ['rep1','rep1','rep1','rep1','rep1','rep1','rep1']
+                                        var data=new Array();
+                                        var trace0 = {
+                                            y: [0,1.78,1.78,8.94,40.19,40.19,97.8],
+                                            x: x,
+                                            name: 'IP',
+                                            marker: {color: '#EA736A'},
+                                            type: 'box',
+                                            boxpoints: false
+                                        };
+                                        data[0]=trace0;
+                                        var trace1 = {
+                                            y: [0,2.38,2.38,11.43,35.01,35.01,83.95],
+                                            x: x,
+                                            name: 'INPUT',
+                                            marker: {color: '#21B4B7'},
+                                            type: 'box',
+                                            boxpoints: false
+                                        };
+                                        data[1]=trace1;
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'RDD Values', <!--title: 'Standard Deviation'-->
+                                                zeroline: false,
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            boxmode: 'group',
+                                            title:'Read Distribution Dispersion',
+                                            boxgap:0.7
+                                        };
+                                        Plotly.newPlot('boxPlot1', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="chart">
+								<h2 class="page-header"> Fraction of Reads in Peaks (FRiP)</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>Read Counts In Peaks</th>
+											<th>Mapping Read Counts</th>
+											<th>FRiP</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272362</td>
+											<td>IP</td>
+											<td>5848963</td>
+											<td>11544555</td>
+											<td>50.66%</td>
+										</tr>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272361</td>
+											<td>INPUT</td>
+											<td>3261820</td>
+											<td>20805586</td>
+											<td>15.68%</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv4"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var trace1 = {
+                                            x:['rep1'],
+                                            y:[50.66],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A'
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1'],
+                                            y:[15.68],
+                                            name: 'INPUT',
+                                            type: 'bar', marker: {
+                                                color: '#21B4B7'
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            barmode: 'group',
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Fraction of Reads in Peaks (FRiP)',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'FRiP (%)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.8
+                                        };
+                                        Plotly.newPlot('myDiv4', data, layout);
+									</script>
+									<!--<img style="width:100%"  src='img/frip.png'/>-->
+								</div>
+							</section>
+							<section id="currency">
+								<h2 class="page-header">Metagene</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicate(s)</th>
+											<th>IP Sample(s)</th>
+											<th>INPUT Sample(s)</th>
+											<th>Peak File(s)</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272362</td>
+											<td>GSM1272361</td>
+											<td>GSM1272362_peak.bed</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="line1"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var data=new Array();
+                                        var trace0 = {
+                                            x: [0.0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3,0.31,0.32,0.33,0.34,0.35,0.36,0.37,0.38,0.39,0.4,0.41,0.42,0.43,0.44,0.45,0.46,0.47,0.48,0.49,0.5,0.51,0.52,0.53,0.54,0.55,0.56,0.57,0.58,0.59,0.6,0.61,0.62,0.63,0.64,0.65,0.66,0.67,0.68,0.69,0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.9,0.91,0.92,0.93,0.94,0.95,0.96,0.97,0.98,0.99,1.0,1.01,1.02,1.03,1.04,1.05,1.06,1.07,1.08,1.09,1.1,1.11,1.12,1.13,1.14,1.15,1.16,1.17,1.18,1.19,1.2,1.21,1.22,1.23,1.24,1.25,1.26,1.27,1.28,1.29,1.3,1.31,1.32,1.33,1.34,1.35,1.36,1.37,1.38,1.39,1.4,1.41,1.42,1.43,1.44,1.45,1.46,1.47,1.48,1.49,1.5,1.51,1.52,1.53,1.54,1.55,1.56,1.57,1.58,1.59,1.6,1.61,1.62,1.63,1.64,1.65,1.66,1.67,1.68,1.69,1.7,1.71,1.72,1.73,1.74,1.75,1.76,1.77,1.78,1.79,1.8,1.81,1.82,1.83,1.84,1.85,1.86,1.87,1.88,1.89,1.9,1.91,1.92,1.93,1.94,1.95,1.96,1.97,1.98,1.99,2.0,2.01,2.02,2.03,2.04,2.05,2.06,2.07,2.08,2.09,2.1,2.11,2.12,2.13,2.14,2.15,2.16,2.17,2.18,2.19,2.2,2.21,2.22,2.23,2.24,2.25,2.26,2.27,2.28,2.29,2.3,2.31,2.32,2.33,2.34,2.35,2.36,2.37,2.38,2.39,2.4,2.41,2.42,2.43,2.44,2.45,2.46,2.47,2.48,2.49,2.5,2.51,2.52,2.53,2.54,2.55,2.56,2.57,2.58,2.59,2.6,2.61,2.62,2.63,2.64,2.65,2.66,2.67,2.68,2.69,2.7,2.71,2.72,2.73,2.74,2.75,2.76,2.77,2.78,2.79,2.8,2.81,2.82,2.83,2.84,2.85,2.86,2.87,2.88,2.89,2.9,2.91,2.92,2.93,2.94,2.95,2.96,2.97,2.98,2.99,3.0],
+                                            y: [0.013,0.045,0.055,0.068,0.075,0.084,0.091,0.097,0.102,0.108,0.111,0.113,0.12,0.117,0.122,0.125,0.128,0.13,0.135,0.137,0.14,0.143,0.144,0.148,0.15,0.15,0.15,0.151,0.153,0.155,0.157,0.157,0.16,0.161,0.161,0.163,0.162,0.158,0.166,0.164,0.165,0.165,0.168,0.167,0.167,0.168,0.166,0.167,0.164,0.165,0.163,0.165,0.163,0.163,0.161,0.163,0.162,0.161,0.16,0.16,0.16,0.161,0.163,0.156,0.159,0.161,0.158,0.158,0.158,0.158,0.156,0.155,0.153,0.153,0.152,0.153,0.154,0.151,0.152,0.151,0.15,0.151,0.152,0.146,0.147,0.146,0.144,0.141,0.145,0.142,0.142,0.141,0.138,0.139,0.139,0.136,0.135,0.134,0.131,0.131,0.511,0.832,0.75,0.676,0.62,0.587,0.555,0.515,0.488,0.465,0.434,0.419,0.418,0.404,0.392,0.389,0.39,0.369,0.361,0.345,0.334,0.33,0.324,0.323,0.318,0.304,0.303,0.305,0.302,0.305,0.317,0.33,0.323,0.321,0.319,0.327,0.31,0.302,0.313,0.31,0.309,0.3,0.309,0.313,0.307,0.308,0.31,0.319,0.315,0.311,0.306,0.304,0.29,0.287,0.279,0.283,0.305,0.311,0.295,0.289,0.288,0.3,0.302,0.299,0.306,0.319,0.307,0.314,0.324,0.34,0.339,0.341,0.336,0.346,0.344,0.359,0.366,0.376,0.38,0.37,0.376,0.389,0.412,0.434,0.438,0.446,0.469,0.474,0.503,0.527,0.558,0.57,0.605,0.618,0.656,0.727,0.787,0.854,0.913,0.967,1.0,0.994,0.994,0.97,0.934,0.866,0.817,0.773,0.734,0.685,0.625,0.59,0.568,0.551,0.531,0.505,0.472,0.451,0.439,0.411,0.386,0.375,0.352,0.336,0.32,0.302,0.299,0.297,0.295,0.286,0.272,0.268,0.262,0.262,0.258,0.249,0.246,0.234,0.232,0.229,0.222,0.217,0.212,0.202,0.202,0.199,0.201,0.202,0.199,0.191,0.184,0.183,0.181,0.177,0.173,0.18,0.185,0.187,0.184,0.177,0.175,0.169,0.164,0.153,0.153,0.152,0.151,0.156,0.158,0.158,0.152,0.152,0.147,0.147,0.147,0.145,0.139,0.142,0.144,0.147,0.146,0.145,0.146,0.145,0.135,0.14,0.143,0.144,0.142,0.138,0.139,0.141,0.135,0.13,0.117,0.108,0.107,0.093,0.084,0.062,0.017],
+                                            mode: 'lines',
+                                            name: 'rep1',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        data[0]=trace0;
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Metagene',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Peak density',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            xaxis: {
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                },
+                                                tickvals: [0.5,1,1.5,2,2.5],
+                                                //ticktext: ['5\' UTR','start codon','CDS','stop codon','3\' UTR'],
+                                                ticktext: ["5' UTR",'start codon','CDS','stop codon',"3' UTR"],
+                                                //tickangle:-20
+                                            },
+                                            shapes: [{
+                                                type: 'line',
+                                                x0: '1',
+                                                y0: 0,
+                                                x1: '1',
+                                                yref: 'paper',
+                                                y1: 1,
+                                                line: {
+                                                    color: 'grey',
+                                                    width: 1.5,
+                                                    dash: 'dot'
+                                                }
+                                            }, {
+                                                type: 'line',
+                                                x0: '2',
+                                                y0: 0,
+                                                x1: '2',
+                                                yref: 'paper',
+                                                y1: 1,
+                                                line: {
+                                                    color: 'grey',
+                                                    width: 1.5,
+                                                    dash: 'dot'
+                                                }
+                                            }]
+                                        }
+                                        Plotly.newPlot('line1', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="text-editor">
+								<h2 class="page-header">Peak Length Distribution</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicate(s)</th>
+											<th>IP Sample(s)</th>
+											<th>INPUT Sample(s)</th>
+											<!--<th>Peak File(s)</th>-->
+											<!--<th>Peak Length</th>-->
+											<th>Peak Counts</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+											<td>rep1</td>
+											<td>GSM1272362</td>
+											<td>GSM1272361</td>
+											<td>25483</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="line2"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var data=new Array();
+                                        var trace0 = {
+                                            x: [100,125,150,175,200,225,250,275,300,325,350,375,400,425,450,475,500,525,550,575,600,625,650,675,700,725,750,775,800,825,850,875,900,925,950,1000],
+                                            y: [3013,2672,2263,1872,1659,1604,1850,3476,1976,1348,867,625,432,355,276,223,201,134,147,94,87,61,56,42,37,21,16,14,9,11,12,10,8,5,6,1],
+                                            mode: 'lines',
+                                            name: 'rep1',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        data[0]=trace0;
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: '',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Peak Counts',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            xaxis: {
+                                                title: 'Peak Length (bp)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            }
+                                        }
+                                        Plotly.newPlot('line2', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="directional">
+								<h2 class="page-header">Fraction of Overlapping-Peak Length</h2>
+								<div class="fontawesome-icon-list">
+									<p><b>No replicate samples!</b></p>
+								</div>
+							</section>
+							<section id="lasttable">
+								<h2 class="page-header">Reference Values</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Quality Control Metrics</th>
+											<th>Reference Values (hg19)</th>
+											<th>Rep1</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Fraction of Reads in Peaks (FRiP)</td>
+												<td>&gt;15%</td>
+												<td>50.66%</td>
+											</tr>
+											<tr>
+												<td>Nonredundant Fraction (NRF)</td>
+												<td>&gt;20%</td>
+												<td>32.57%</td>
+											</tr>
+											<tr>
+												<td>Uniquely Mapping Read Counts</td>
+												<td>&gt;11M</td>
+												<td>10356653</td>
+											</tr>
+											<tr>
+												<td>Detected Gene Counts</td>
+												<td>&gt;17000</td>
+												<td>18370</td>
+											</tr>
+											<tr>
+												<td>Detected m6A Peak Counts</td>
+												<td>&gt;8000</td>
+												<td>25483</td>
+											</tr>
+											<tr>
+												<td>rRNA &amp; tRNA Contamination Ratio</td>
+												<td>&lt;21%</td>
+												<td>1.20%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</section>
+						</div>
+					</div>
+				</div>
+			</div>
+			<style>
+				footer.main-footer {
+					padding: 0 !important;
+				}
+			</style>
+			<!--尾部-->
+			<footer class="main-footer sticky footer-type-1" style="padding: 0 !important;">
+				<div class="footer-inner" style="display: table;
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+margin-top: 13px;">
+					<div class="footer-text" style="display: table;
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+">
+						<h4><b>For more information, please visit our MeRIP-seq quality database (<a target="_blank" href="http://epigenome.sysu.edu.cn/merip">http://epigenome.sysu.edu.cn/merip</a>).</b></h4>
+					</div>
+
+				</div>
+				<div class="go-up">
+					<a href="#" rel="go-top" style="    position: relative;
+    bottom: 27px;
+    right: 23px;
+}">
+						<i class="fa-angle-up">^</i>
+					</a>
+				</div>
+			</footer>
+		</div>
+	</div>
+</body>
+</html>

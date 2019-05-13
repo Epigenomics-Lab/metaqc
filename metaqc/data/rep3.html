@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--头部-->
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="" content="IE=edge">
+	<meta name="description" content="" />
+	<title>MetaQC Quality Control Reports</title>
+	<!--页面引用文件-->
+	<link rel="stylesheet" href="css/bootstrap.css">
+	<link rel="stylesheet" href="css/xenon-core.css">
+	<script src="js/jquery-1.11.1.min.js"></script>
+	<script src="js/plotly-latest.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/TweenMax.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<script src="js/jquery.tocify.min.js"></script>
+	<script src="js/xenon-custom.js"></script>
+	<style>
+		img{
+			margin: 20px 0 20px 0;
+		}
+		.tocify .tocify-item.active > a:after {
+			display:none;
+		}
+		.tocify .tocify-item.active > a:before {
+			display:none;
+		}
+		.tocify{
+				width:235px !important;
+			    font-weight: bold !important;
+				 }
+		@media screen and (max-width: 768px){
+			.navbar.horizontal-menu .navbar-inner {
+				background: #ffffff;
+			}
+		}
+		th {
+			text-align:center !important;
+		}
+	</style>
+</head>
+<body class="page-body">
+<nav class="navbar horizontal-menu navbar-fixed-top">
+	<div class="navbar-inner">
+		<div class="navbar-brand">
+			  <h1 style="font-weight:bolder;color:#1d355d">MetaQC Quality Control Reports</h1><!--头部标题-->
+		</div>
+		<div class="nav navbar-mobile">
+		</div>
+		<div class="navbar-mobile-clear"></div>
+	</div>
+</nav>
+
+<script>
+    $(document).ready(function(){
+//        var navtop=$("#header").offset().top;
+        $(document).scroll(function(){
+            var scroltop=$(document).scrollTop();
+//            console.log(scroltop)
+            if (scroltop >85){
+                $(".navbar").css({
+                    "position":"fixed",
+                    "height":"60px"
+                })
+
+                $(".logo>h1").css({
+                    "font-size":"23px",
+                    "margin-top":"-10px"
+                })
+                $(".tocify").css({
+                    "margin-top":"90px"
+                })
+            }else {
+                $(".navbar").css({
+                    "position":"",
+                    "height":"60px"
+                })
+                $(".logo>h1").css({
+                    "font-size":"23px",
+                    "margin-top":"-10px"
+                })
+                $(".tocify").css({
+                    "margin-top":"0x"
+                })
+            }
+        })
+    })
+</script>
+<script>
+    var clickhref = $("#top").find(".topLink")
+    clickhref.on("click",function(){
+        var height = $("#header").height()
+        if(height == 100){
+            $("html, body").animate({
+                scrollTop: $($(this).attr("href")).offset().top -220+ "px"
+            }, {
+                duration: 500,
+                easing: "swing"
+            });
+        }else {
+            $("html, body").animate({
+                scrollTop: $($(this).attr("href")).offset().top -80+ "px"
+            }, {
+                duration: 500,
+                easing: "swing"
+            });
+        }
+    });
+</script>
+
+
+<div class="page-container"><!--页面主体-->
+		<div class="main-content"><!--页面主体-->
+			<div class="row"><!--页面主体-->
+				<div class="col-md-3">
+					<div id="toc"></div>
+				</div><!--左侧导航是下方版块动态传入-->
+				<div class="col-md-9">
+					<div class="tocify-content">
+						<div class="icon-collection">
+							<div id="new">
+								<h2 class="page-header" style="margin-top: 96px;">Uniquely Mapping Ratio</h2><!--需要传入的左侧导航栏标题-->
+								<div class="fontawesome-icon-list">
+									<div class="table table-bordered-responsive">
+										<table class="table  table-bordered table-striped table-hover "><!--版块内表格-->
+											<thead>
+											<tr>
+												<th align="right"  width="20%">Replicates</th>
+												<th>Samples</th>
+												<th>Types</th>
+												<th>Uniquely Mapping Read Counts</th>
+												<th>Total Read Counts</th>
+												<th>Uniquely Mapping Ratio</th>
+											</tr>
+											</thead>
+											<tbody>
+											<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>IP</td>
+												<td>19178688</td>
+												<td>25834468</td>
+												<td>74.24%</td>
+											</tr>
+											<tr>
+												<td>rep1</td>
+												<td>GSM1166136</td>
+												<td>INPUT</td>
+												<td>19364679</td>
+												<td>26442808</td>
+												<td>73.23%</td>
+											</tr>
+											<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>IP</td>
+												<td>18311606</td>
+												<td>24747854</td>
+												<td>73.99%</td>
+											</tr>
+											<tr>
+												<td>rep2</td>
+												<td>GSM1166137</td>
+												<td>INPUT</td>
+												<td>19963481</td>
+												<td>27241302</td>
+												<td>73.28%</td>
+											</tr>
+											<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>IP</td>
+												<td>18179205</td>
+												<td>24585787</td>
+												<td>73.94%</td>
+											</tr>
+											<tr>
+												<td>rep3</td>
+												<td>GSM1166138</td>
+												<td>INPUT</td>
+												<td>21137300</td>
+												<td>29433848</td>
+												<td>71.81%</td>
+											</tr>
+											</tbody>
+										</table>
+									</div>
+									<div id="myDiv" style="width: 100%"></div><!--饼图-->
+									<script>
+                                        var trace1 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[74.24, 73.99, 73.94],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A ',
+                                                opacity: 0.5
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[73.23, 73.28, 71.81],
+                                            name: 'INPUT',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#21B4B7',
+                                                opacity: 0.5
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            barmode: 'group',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Uniquely Mapping Ratio',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Uniquely Mapping Ratio (%)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.45
+                                        };
+                                        Plotly.newPlot('myDiv', data, layout);
+									</script><!--饼图数据-->
+								</div><!--对应的右侧内容-->
+							</div>
+							<section id="web-application">
+								<h2 class="page-header">Nonredundant Fraction (NRF)</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover ">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>Uniquely Mapping Location Counts</th>
+											<th>Uniquely Mapping Read Counts</th>
+											<th>NRF</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>IP</td>
+												<td>9135255</td>
+												<td>19178688</td>
+												<td>47.63%</td>
+										</tr>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166136</td>
+												<td>INPUT</td>
+												<td>9070777</td>
+												<td>19364679</td>
+												<td>46.84%</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>IP</td>
+												<td>8842404</td>
+												<td>18311606</td>
+												<td>48.29%</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166137</td>
+												<td>INPUT</td>
+												<td>9303741</td>
+												<td>19963481</td>
+												<td>46.60%</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>IP</td>
+												<td>8783609</td>
+												<td>18179205</td>
+												<td>48.32%</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166138</td>
+												<td>INPUT</td>
+												<td>9657464</td>
+												<td>21137300</td>
+												<td>45.69%</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv1"></div>
+
+									<script>
+                                        var trace1 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[47.63, 48.29, 48.32],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A ',
+                                                opacity: 0.8
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[46.84, 46.60, 45.69],
+                                            name: 'INPUT',
+                                            type: 'bar', marker: {
+                                                color: '#21B4B7',
+                                                opacity: 0.8
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            barmode: 'group',
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Nonredundant Fraction (NRF)',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'NRF (%)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.45
+                                        };
+                                        Plotly.newPlot('myDiv1', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="file-type">
+								<h2 class="page-header">PCR Bottleneck Coefficient (PBC)</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>One Read Mapping Location Counts</th>
+											<th>Uniquely Mapping Location Counts</th>
+											<th>PBC</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>IP</td>
+												<td>6292450</td>
+												<td>9135255</td>
+												<td>0.6888</td>
+										</tr>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166136</td>
+												<td>INPUT</td>
+												<td>6240690</td>
+												<td>9070777</td>
+												<td>0.6880</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>IP</td>
+												<td>6120354</td>
+												<td>8842404</td>
+												<td>0.6922</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166137</td>
+												<td>INPUT</td>
+												<td>6406257</td>
+												<td>9303741</td>
+												<td>0.6886</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>IP</td>
+												<td>6098652</td>
+												<td>8783609</td>
+												<td>0.6943</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166138</td>
+												<td>INPUT</td>
+												<td>6601756</td>
+												<td>9657464</td>
+												<td>0.6836</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv2"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var trace1 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[0.6888, 0.6922, 0.6943],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A'
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[0.6880, 0.6886, 0.6836],
+                                            name: 'INPUT',
+                                            type: 'bar', marker: {
+                                                color: '#21B4B7'
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            barmode: 'group',
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'PCR Bottleneck Coefficient (PBC)',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'PBC',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.45
+                                        };
+                                        Plotly.newPlot('myDiv2', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="spinner">
+								<h2 class="page-header">rRNA & tRNA Contamination Ratio</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover ">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>rRNA Mapping Read Counts</th>
+											<th>tRNA Mapping Read Counts</th>
+											<th>Mapping Read Counts</th>
+											<th>Contamination Ratio</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>IP</td>
+												<td>708376</td>
+												<td>20258</td>
+												<td>23007888</td>
+												<td>3.17%</td>
+										</tr>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166136</td>
+												<td>INPUT</td>
+												<td>1041009</td>
+												<td>14316</td>
+												<td>23773685</td>
+												<td>4.44%</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>IP</td>
+												<td>620234</td>
+												<td>9432</td>
+												<td>21815757</td>
+												<td>2.89%</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166137</td>
+												<td>INPUT</td>
+												<td>1050545</td>
+												<td>14837</td>
+												<td>24535105</td>
+												<td>4.34%</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>IP</td>
+												<td>613398</td>
+												<td>25472</td>
+												<td>21810872</td>
+												<td>2.93%</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166138</td>
+												<td>INPUT</td>
+												<td>1084264</td>
+												<td>10521</td>
+												<td>25987383</td>
+												<td>4.21%</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv3"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var trace1 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[3.17, 2.89, 2.93],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A'
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[4.44, 4.34, 4.21],
+                                            name: 'INPUT',
+                                            type: 'bar', marker: {
+                                                color: '#21B4B7'
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            barmode: 'group',
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'rRNA & tRNA Contamination Ratio',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Contamination Ratio (%)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.45
+                                        };
+                                        Plotly.newPlot('myDiv3', data, layout);
+									</script>
+									<!--<img style="width:100%"  src='img/contamination.png'/>-->
+								</div>
+							</section>
+							<section id="form-control">
+								<h2 class="page-header">Library Saturation</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>Detected Gene Counts</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>IP</td>
+												<td>18620</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>IP</td>
+												<td>18644</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>IP</td>
+												<td>18518</td>
+										</tr>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166136</td>
+												<td>INPUT</td>
+												<td>18420</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166137</td>
+												<td>INPUT</td>
+												<td>18599</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166138</td>
+												<td>INPUT</td>
+												<td>18675</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv8"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var trace1 = {
+                                            x: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100],
+                                            y: [0,8050,10328,11425,12172,12664,13031,13388,13664,13892,14140,14529,14826,15068,15316,15514,15980,16319,16583,16874,17078,17287,17623,17903,18200,18424,18620],
+                                            mode: 'lines',
+                                            name: 'IP_rep1',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100],
+                                            y: [0,7925,10083,11166,11920,12407,12795,13142,13429,13680,13909,14275,14616,14883,15102,15307,15770,16135,16459,16733,16951,17180,17516,17778,18028,18233,18420],
+                                            mode: 'lines',
+                                            name: 'INPUT_rep1',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        var trace3 = {
+                                            x: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100],
+                                            y: [0,7909,10234,11417,12137,12640,13034,13362,13616,13860,14088,14428,14748,15022,15255,15474,15919,16266,16574,16819,17064,17282,17641,17958,18208,18448,18644],
+                                            mode: 'lines',
+                                            name: 'IP_rep2',
+                                            line: {
+                                                dash: 'dashdot',
+                                                width: 2
+                                            }
+                                        };
+                                        var trace4 = {
+                                            x: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100],
+                                            y: [0,8060,10267,11369,12081,12586,13003,13325,13613,13847,14053,14378,14684,14960,15171,15408,15882,16273,16573,16837,17102,17304,17649,17954,18206,18425,18599],
+                                            mode: 'lines',
+                                            name: 'INPUT_rep2',
+                                            line: {
+                                                dash: 'dot',
+                                                width: 2
+                                            }
+                                        };
+                                        var trace5 = {
+                                            x: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100],
+                                            y: [0,7792,10154,11269,12001,12509,12903,13230,13483,13731,13966,14335,14646,14911,15147,15381,15851,16184,16488,16749,16989,17189,17579,17873,18126,18340,18518],
+                                            mode: 'lines',
+                                            name: 'IP_rep3',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        var trace6 = {
+                                            x: [0,1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,90,100],
+                                            y: [0,8218,10400,11490,12202,12664,13053,13398,13676,13924,14133,14512,14833,15116,15348,15561,16026,16378,16690,16983,17218,17403,17725,18033,18281,18509,18675],
+                                            mode: 'lines',
+                                            name: 'INPUT_rep3',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        var data = [trace6, trace5, trace4, trace3, trace2, trace1];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Library Saturation',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Gene Counts',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                                xaxis: {
+                                                    title: 'Read Fraction (%)',
+                                                    titlefont: {
+                                                        // family: '黑体',
+                                                        size: 18,
+                                                        weight: 500,
+                                                        color: '#000000'
+                                                    }
+                                                }
+                                        }
+                                        Plotly.newPlot('myDiv8', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="payment">
+								<h2 class="page-header">Read Distribution Dispersion</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>IP Sample</th>
+											<th>INPUT Sample</th>
+											<th>IP Median</th>
+											<th>INPUT Median</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>GSM1166136</td>
+												<td>15.83</td>
+												<td>13.0</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>GSM1166137</td>
+												<td>15.94</td>
+												<td>12.96</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>GSM1166138</td>
+												<td>14.87</td>
+												<td>13.69</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="boxPlot1"></div>
+									<script>
+                                        var x = ['rep1','rep1','rep1','rep1','rep1','rep1','rep1','rep2','rep2','rep2','rep2','rep2','rep2','rep2','rep3','rep3','rep3','rep3','rep3','rep3','rep3']
+                                        var data=new Array();
+                                        var trace0 = {
+                                            y: [0,2.75,2.75,15.83,49.89,49.89,120.6,0,2.67,2.67,15.94,50.48,50.48,122.19,0,2.57,2.57,14.87,46.26,46.26,111.79],
+                                            x: x,
+                                            name: 'IP',
+                                            marker: {color: '#EA736A'},
+                                            type: 'box',
+                                            boxpoints: false
+                                        };
+                                        data[0]=trace0;
+                                        var trace1 = {
+                                            y: [0,2.37,2.37,13.0,40.85,40.85,98.57,0,2.31,2.31,12.96,40.8,40.8,98.53,0,2.39,2.39,13.69,43.39,43.39,104.89],
+                                            x: x,
+                                            name: 'INPUT',
+                                            marker: {color: '#21B4B7'},
+                                            type: 'box',
+                                            boxpoints: false
+                                        };
+                                        data[1]=trace1;
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'RDD Values', <!--title: 'Standard Deviation'-->
+                                                zeroline: false,
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            boxmode: 'group',
+                                            title:'Read Distribution Dispersion'
+                                        };
+                                        Plotly.newPlot('boxPlot1', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="chart">
+								<h2 class="page-header"> Fraction of Reads in Peaks (FRiP)</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Samples</th>
+											<th>Types</th>
+											<th>Read Counts In Peaks</th>
+											<th>Mapping Read Counts</th>
+											<th>FRiP</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>IP</td>
+												<td>3512520</td>
+												<td>23007888</td>
+												<td>15.27%</td>
+										</tr>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166136</td>
+												<td>INPUT</td>
+												<td>2467886</td>
+												<td>23773685</td>
+												<td>10.38%</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>IP</td>
+												<td>4111674</td>
+												<td>21815757</td>
+												<td>18.85%</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166137</td>
+												<td>INPUT</td>
+												<td>2910380</td>
+												<td>24535105</td>
+												<td>11.86%</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>IP</td>
+												<td>2999717</td>
+												<td>21810872</td>
+												<td>13.75%</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166138</td>
+												<td>INPUT</td>
+												<td>2457862</td>
+												<td>25987383</td>
+												<td>9.46%</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="myDiv4"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var trace1 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[15.27, 18.85, 13.75],
+                                            name: 'IP',
+                                            type: 'bar',
+                                            marker: {
+                                                color: '#EA736A'
+                                            }
+                                        };
+                                        var trace2 = {
+                                            x:['rep1', 'rep2', 'rep3'],
+                                            y:[10.38, 11.86, 9.46],
+                                            name: 'INPUT',
+                                            type: 'bar', marker: {
+                                                color: '#21B4B7'
+                                            }
+                                        };
+                                        var data = [trace1, trace2];
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            barmode: 'group',
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Fraction of Reads in Peaks (FRiP)',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'FRiP (%)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            bargap:0.45
+                                        };
+                                        Plotly.newPlot('myDiv4', data, layout);
+									</script>
+									<!--<img style="width:100%"  src='img/frip.png'/>-->
+								</div>
+							</section>
+							<section id="currency">
+								<h2 class="page-header">Metagene</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicate(s)</th>
+											<th>IP Sample(s)</th>
+											<th>INPUT Sample(s)</th>
+											<th>Peak File(s)</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>GSM1166136</td>
+												<td>GSM1166142_peak.bed</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>GSM1166137</td>
+												<td>GSM1166143_peak.bed</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>GSM1166138</td>
+												<td>GSM1166144_peak.bed</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="line1"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var data=new Array();
+                                        var trace0 = {
+                                            x: [0.0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3,0.31,0.32,0.33,0.34,0.35,0.36,0.37,0.38,0.39,0.4,0.41,0.42,0.43,0.44,0.45,0.46,0.47,0.48,0.49,0.5,0.51,0.52,0.53,0.54,0.55,0.56,0.57,0.58,0.59,0.6,0.61,0.62,0.63,0.64,0.65,0.66,0.67,0.68,0.69,0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.9,0.91,0.92,0.93,0.94,0.95,0.96,0.97,0.98,0.99,1.0,1.01,1.02,1.03,1.04,1.05,1.06,1.07,1.08,1.09,1.1,1.11,1.12,1.13,1.14,1.15,1.16,1.17,1.18,1.19,1.2,1.21,1.22,1.23,1.24,1.25,1.26,1.27,1.28,1.29,1.3,1.31,1.32,1.33,1.34,1.35,1.36,1.37,1.38,1.39,1.4,1.41,1.42,1.43,1.44,1.45,1.46,1.47,1.48,1.49,1.5,1.51,1.52,1.53,1.54,1.55,1.56,1.57,1.58,1.59,1.6,1.61,1.62,1.63,1.64,1.65,1.66,1.67,1.68,1.69,1.7,1.71,1.72,1.73,1.74,1.75,1.76,1.77,1.78,1.79,1.8,1.81,1.82,1.83,1.84,1.85,1.86,1.87,1.88,1.89,1.9,1.91,1.92,1.93,1.94,1.95,1.96,1.97,1.98,1.99,2.0,2.01,2.02,2.03,2.04,2.05,2.06,2.07,2.08,2.09,2.1,2.11,2.12,2.13,2.14,2.15,2.16,2.17,2.18,2.19,2.2,2.21,2.22,2.23,2.24,2.25,2.26,2.27,2.28,2.29,2.3,2.31,2.32,2.33,2.34,2.35,2.36,2.37,2.38,2.39,2.4,2.41,2.42,2.43,2.44,2.45,2.46,2.47,2.48,2.49,2.5,2.51,2.52,2.53,2.54,2.55,2.56,2.57,2.58,2.59,2.6,2.61,2.62,2.63,2.64,2.65,2.66,2.67,2.68,2.69,2.7,2.71,2.72,2.73,2.74,2.75,2.76,2.77,2.78,2.79,2.8,2.81,2.82,2.83,2.84,2.85,2.86,2.87,2.88,2.89,2.9,2.91,2.92,2.93,2.94,2.95,2.96,2.97,2.98,2.99,3.0],
+                                            y: [0.007,0.022,0.027,0.031,0.035,0.039,0.041,0.045,0.046,0.049,0.051,0.052,0.056,0.055,0.057,0.058,0.06,0.062,0.063,0.064,0.067,0.068,0.068,0.071,0.071,0.07,0.069,0.07,0.072,0.074,0.074,0.074,0.076,0.076,0.077,0.077,0.076,0.075,0.079,0.078,0.079,0.08,0.08,0.078,0.079,0.079,0.078,0.08,0.08,0.082,0.082,0.085,0.085,0.087,0.086,0.086,0.085,0.084,0.086,0.088,0.09,0.09,0.093,0.089,0.091,0.093,0.092,0.09,0.091,0.091,0.089,0.09,0.088,0.086,0.087,0.088,0.089,0.088,0.089,0.089,0.087,0.088,0.086,0.086,0.086,0.086,0.085,0.082,0.086,0.084,0.085,0.085,0.085,0.083,0.084,0.084,0.084,0.084,0.083,0.083,0.298,0.503,0.489,0.459,0.442,0.428,0.407,0.391,0.374,0.369,0.346,0.34,0.33,0.326,0.308,0.311,0.304,0.282,0.278,0.272,0.267,0.269,0.26,0.252,0.25,0.245,0.245,0.25,0.246,0.248,0.241,0.251,0.257,0.249,0.243,0.242,0.239,0.226,0.219,0.213,0.219,0.227,0.218,0.237,0.234,0.24,0.231,0.239,0.24,0.228,0.223,0.213,0.206,0.217,0.234,0.243,0.236,0.233,0.228,0.209,0.208,0.211,0.213,0.21,0.225,0.225,0.226,0.244,0.241,0.241,0.248,0.26,0.265,0.271,0.278,0.285,0.291,0.303,0.306,0.321,0.321,0.337,0.354,0.36,0.375,0.381,0.394,0.4,0.422,0.439,0.462,0.493,0.511,0.515,0.558,0.609,0.66,0.711,0.758,0.791,0.908,1.0,0.977,0.949,0.931,0.897,0.851,0.817,0.763,0.716,0.653,0.605,0.572,0.54,0.506,0.467,0.429,0.405,0.386,0.368,0.36,0.347,0.321,0.305,0.298,0.286,0.272,0.262,0.263,0.254,0.248,0.247,0.25,0.249,0.234,0.231,0.221,0.206,0.2,0.194,0.188,0.188,0.185,0.168,0.172,0.165,0.161,0.153,0.151,0.155,0.159,0.161,0.164,0.164,0.15,0.152,0.158,0.148,0.144,0.146,0.13,0.128,0.13,0.138,0.136,0.134,0.141,0.142,0.14,0.135,0.141,0.141,0.132,0.122,0.119,0.121,0.122,0.122,0.122,0.123,0.117,0.124,0.118,0.117,0.109,0.108,0.107,0.106,0.1,0.086,0.082,0.086,0.082,0.084,0.081,0.067,0.062,0.052,0.042,0.029,0.005],
+                                            mode: 'lines',
+                                            name: 'rep1',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        data[0]=trace0;
+                                        var trace1 = {
+                                            x: [0.0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3,0.31,0.32,0.33,0.34,0.35,0.36,0.37,0.38,0.39,0.4,0.41,0.42,0.43,0.44,0.45,0.46,0.47,0.48,0.49,0.5,0.51,0.52,0.53,0.54,0.55,0.56,0.57,0.58,0.59,0.6,0.61,0.62,0.63,0.64,0.65,0.66,0.67,0.68,0.69,0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.9,0.91,0.92,0.93,0.94,0.95,0.96,0.97,0.98,0.99,1.0,1.01,1.02,1.03,1.04,1.05,1.06,1.07,1.08,1.09,1.1,1.11,1.12,1.13,1.14,1.15,1.16,1.17,1.18,1.19,1.2,1.21,1.22,1.23,1.24,1.25,1.26,1.27,1.28,1.29,1.3,1.31,1.32,1.33,1.34,1.35,1.36,1.37,1.38,1.39,1.4,1.41,1.42,1.43,1.44,1.45,1.46,1.47,1.48,1.49,1.5,1.51,1.52,1.53,1.54,1.55,1.56,1.57,1.58,1.59,1.6,1.61,1.62,1.63,1.64,1.65,1.66,1.67,1.68,1.69,1.7,1.71,1.72,1.73,1.74,1.75,1.76,1.77,1.78,1.79,1.8,1.81,1.82,1.83,1.84,1.85,1.86,1.87,1.88,1.89,1.9,1.91,1.92,1.93,1.94,1.95,1.96,1.97,1.98,1.99,2.0,2.01,2.02,2.03,2.04,2.05,2.06,2.07,2.08,2.09,2.1,2.11,2.12,2.13,2.14,2.15,2.16,2.17,2.18,2.19,2.2,2.21,2.22,2.23,2.24,2.25,2.26,2.27,2.28,2.29,2.3,2.31,2.32,2.33,2.34,2.35,2.36,2.37,2.38,2.39,2.4,2.41,2.42,2.43,2.44,2.45,2.46,2.47,2.48,2.49,2.5,2.51,2.52,2.53,2.54,2.55,2.56,2.57,2.58,2.59,2.6,2.61,2.62,2.63,2.64,2.65,2.66,2.67,2.68,2.69,2.7,2.71,2.72,2.73,2.74,2.75,2.76,2.77,2.78,2.79,2.8,2.81,2.82,2.83,2.84,2.85,2.86,2.87,2.88,2.89,2.9,2.91,2.92,2.93,2.94,2.95,2.96,2.97,2.98,2.99,3.0],
+                                            y: [0.009,0.031,0.036,0.042,0.049,0.054,0.059,0.063,0.066,0.068,0.071,0.074,0.08,0.077,0.08,0.081,0.083,0.085,0.087,0.087,0.09,0.09,0.089,0.09,0.091,0.092,0.092,0.093,0.094,0.096,0.095,0.094,0.097,0.097,0.098,0.1,0.1,0.099,0.104,0.102,0.104,0.104,0.105,0.104,0.104,0.105,0.103,0.106,0.105,0.106,0.106,0.108,0.107,0.109,0.109,0.11,0.111,0.111,0.112,0.112,0.113,0.113,0.116,0.112,0.114,0.115,0.115,0.113,0.114,0.113,0.112,0.114,0.113,0.112,0.114,0.113,0.115,0.113,0.115,0.116,0.115,0.114,0.115,0.112,0.11,0.109,0.107,0.103,0.109,0.106,0.107,0.107,0.106,0.106,0.107,0.107,0.107,0.107,0.107,0.107,0.374,0.634,0.611,0.595,0.562,0.533,0.506,0.469,0.458,0.436,0.408,0.389,0.385,0.366,0.349,0.332,0.329,0.32,0.317,0.313,0.309,0.3,0.28,0.273,0.266,0.253,0.247,0.256,0.251,0.264,0.264,0.253,0.255,0.248,0.245,0.252,0.249,0.246,0.251,0.242,0.251,0.249,0.268,0.269,0.275,0.28,0.272,0.269,0.263,0.26,0.24,0.224,0.21,0.22,0.22,0.229,0.25,0.259,0.261,0.252,0.253,0.249,0.255,0.255,0.253,0.253,0.265,0.269,0.262,0.274,0.29,0.301,0.303,0.303,0.316,0.317,0.321,0.332,0.338,0.328,0.332,0.34,0.371,0.396,0.393,0.411,0.431,0.446,0.446,0.456,0.461,0.482,0.532,0.552,0.591,0.623,0.676,0.755,0.82,0.841,0.941,1.0,0.976,0.955,0.911,0.853,0.807,0.76,0.706,0.653,0.62,0.579,0.535,0.492,0.464,0.441,0.415,0.38,0.364,0.346,0.337,0.316,0.304,0.297,0.278,0.265,0.261,0.249,0.241,0.233,0.227,0.218,0.224,0.22,0.208,0.196,0.19,0.187,0.176,0.17,0.17,0.164,0.155,0.151,0.151,0.146,0.145,0.144,0.145,0.14,0.135,0.131,0.13,0.127,0.125,0.127,0.13,0.129,0.132,0.137,0.135,0.133,0.125,0.121,0.12,0.119,0.12,0.116,0.118,0.126,0.126,0.129,0.128,0.127,0.125,0.125,0.126,0.127,0.123,0.114,0.105,0.104,0.102,0.092,0.091,0.086,0.083,0.085,0.092,0.088,0.088,0.088,0.079,0.077,0.076,0.068,0.059,0.044,0.039,0.027,0.007],
+                                            mode: 'lines',
+                                            name: 'rep2',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        data[1]=trace1;
+                                        var trace2 = {
+                                            x: [0.0,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3,0.31,0.32,0.33,0.34,0.35,0.36,0.37,0.38,0.39,0.4,0.41,0.42,0.43,0.44,0.45,0.46,0.47,0.48,0.49,0.5,0.51,0.52,0.53,0.54,0.55,0.56,0.57,0.58,0.59,0.6,0.61,0.62,0.63,0.64,0.65,0.66,0.67,0.68,0.69,0.7,0.71,0.72,0.73,0.74,0.75,0.76,0.77,0.78,0.79,0.8,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.9,0.91,0.92,0.93,0.94,0.95,0.96,0.97,0.98,0.99,1.0,1.01,1.02,1.03,1.04,1.05,1.06,1.07,1.08,1.09,1.1,1.11,1.12,1.13,1.14,1.15,1.16,1.17,1.18,1.19,1.2,1.21,1.22,1.23,1.24,1.25,1.26,1.27,1.28,1.29,1.3,1.31,1.32,1.33,1.34,1.35,1.36,1.37,1.38,1.39,1.4,1.41,1.42,1.43,1.44,1.45,1.46,1.47,1.48,1.49,1.5,1.51,1.52,1.53,1.54,1.55,1.56,1.57,1.58,1.59,1.6,1.61,1.62,1.63,1.64,1.65,1.66,1.67,1.68,1.69,1.7,1.71,1.72,1.73,1.74,1.75,1.76,1.77,1.78,1.79,1.8,1.81,1.82,1.83,1.84,1.85,1.86,1.87,1.88,1.89,1.9,1.91,1.92,1.93,1.94,1.95,1.96,1.97,1.98,1.99,2.0,2.01,2.02,2.03,2.04,2.05,2.06,2.07,2.08,2.09,2.1,2.11,2.12,2.13,2.14,2.15,2.16,2.17,2.18,2.19,2.2,2.21,2.22,2.23,2.24,2.25,2.26,2.27,2.28,2.29,2.3,2.31,2.32,2.33,2.34,2.35,2.36,2.37,2.38,2.39,2.4,2.41,2.42,2.43,2.44,2.45,2.46,2.47,2.48,2.49,2.5,2.51,2.52,2.53,2.54,2.55,2.56,2.57,2.58,2.59,2.6,2.61,2.62,2.63,2.64,2.65,2.66,2.67,2.68,2.69,2.7,2.71,2.72,2.73,2.74,2.75,2.76,2.77,2.78,2.79,2.8,2.81,2.82,2.83,2.84,2.85,2.86,2.87,2.88,2.89,2.9,2.91,2.92,2.93,2.94,2.95,2.96,2.97,2.98,2.99,3.0],
+                                            y: [0.008,0.029,0.036,0.043,0.05,0.057,0.062,0.065,0.067,0.071,0.074,0.074,0.079,0.078,0.083,0.081,0.084,0.085,0.088,0.089,0.09,0.093,0.091,0.092,0.093,0.094,0.094,0.095,0.097,0.1,0.099,0.099,0.102,0.102,0.105,0.106,0.107,0.104,0.108,0.107,0.106,0.107,0.106,0.106,0.107,0.107,0.105,0.106,0.107,0.109,0.107,0.111,0.11,0.11,0.109,0.111,0.111,0.109,0.109,0.11,0.112,0.111,0.114,0.108,0.112,0.113,0.113,0.113,0.112,0.109,0.109,0.112,0.11,0.11,0.112,0.112,0.114,0.111,0.112,0.112,0.111,0.112,0.112,0.11,0.111,0.109,0.108,0.105,0.11,0.108,0.109,0.107,0.108,0.109,0.11,0.109,0.109,0.108,0.108,0.107,0.366,0.606,0.587,0.563,0.527,0.485,0.47,0.461,0.454,0.43,0.409,0.398,0.383,0.38,0.379,0.373,0.373,0.353,0.335,0.315,0.316,0.304,0.294,0.275,0.264,0.273,0.274,0.276,0.272,0.265,0.273,0.278,0.274,0.266,0.27,0.267,0.252,0.238,0.232,0.226,0.229,0.23,0.249,0.247,0.244,0.242,0.247,0.233,0.243,0.242,0.23,0.237,0.239,0.241,0.244,0.254,0.258,0.271,0.276,0.249,0.233,0.237,0.24,0.232,0.234,0.242,0.263,0.27,0.282,0.282,0.291,0.297,0.31,0.319,0.325,0.341,0.342,0.353,0.356,0.339,0.347,0.353,0.379,0.388,0.395,0.399,0.404,0.417,0.439,0.469,0.497,0.52,0.547,0.57,0.608,0.645,0.676,0.73,0.797,0.816,0.934,1.0,0.977,0.962,0.917,0.892,0.84,0.81,0.764,0.69,0.623,0.587,0.554,0.523,0.492,0.463,0.419,0.38,0.373,0.365,0.358,0.335,0.323,0.308,0.3,0.298,0.28,0.262,0.255,0.247,0.243,0.251,0.244,0.243,0.227,0.214,0.204,0.192,0.181,0.173,0.182,0.176,0.172,0.168,0.167,0.162,0.156,0.156,0.163,0.16,0.157,0.144,0.145,0.152,0.148,0.142,0.136,0.128,0.13,0.127,0.14,0.137,0.137,0.131,0.128,0.116,0.108,0.109,0.109,0.12,0.129,0.127,0.123,0.121,0.116,0.128,0.125,0.12,0.116,0.107,0.102,0.103,0.098,0.098,0.09,0.09,0.094,0.088,0.088,0.093,0.094,0.088,0.081,0.073,0.073,0.074,0.067,0.057,0.042,0.028,0.006],
+                                            mode: 'lines',
+                                            name: 'rep3',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        data[2]=trace2;
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: 'Metagene',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Peak density',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            xaxis: {
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                },
+                                                tickvals: [0.5,1,1.5,2,2.5],
+                                                //ticktext: ['5\' UTR','start codon','CDS','stop codon','3\' UTR'],
+                                                ticktext: ["5' UTR",'start codon','CDS','stop codon',"3' UTR"],
+                                                //tickangle:-20
+                                            },
+                                            shapes: [{
+                                                type: 'line',
+                                                x0: '1',
+                                                y0: 0,
+                                                x1: '1',
+                                                yref: 'paper',
+                                                y1: 1,
+                                                line: {
+                                                    color: 'grey',
+                                                    width: 1.5,
+                                                    dash: 'dot'
+                                                }
+                                            }, {
+                                                type: 'line',
+                                                x0: '2',
+                                                y0: 0,
+                                                x1: '2',
+                                                yref: 'paper',
+                                                y1: 1,
+                                                line: {
+                                                    color: 'grey',
+                                                    width: 1.5,
+                                                    dash: 'dot'
+                                                }
+                                            }]
+                                        }
+                                        Plotly.newPlot('line1', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="text-editor">
+								<h2 class="page-header">Peak Length Distribution</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicate(s)</th>
+											<th>IP Sample(s)</th>
+											<th>INPUT Sample(s)</th>
+											<!--<th>Peak File(s)</th>-->
+											<!--<th>Peak Length</th>-->
+											<th>Peak Counts</th>
+										</tr>
+										</thead>
+										<tbody>
+										<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>GSM1166136</td>
+												<td>12022</td>
+										</tr>
+										<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>GSM1166137</td>
+												<td>14812</td>
+										</tr>
+										<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>GSM1166138</td>
+												<td>11156</td>
+										</tr>
+										</tbody>
+									</table>
+									<div id="line2"><!-- Plotly chart will be drawn inside this DIV --></div>
+									<script>
+                                        var data=new Array();
+                                        var trace0 = {
+                                            x: [100,125,150,175,200,225,250,275,300,325,350,375,400,425,450,475,500,525,550,575,600,625,650,675,700,725,750,775,800,825,850,875,900,925,950,975,1000],
+                                            y: [1843,1330,1076,991,752,674,646,870,582,479,469,360,326,253,221,182,146,140,91,97,60,70,50,48,49,23,25,22,29,31,16,15,12,17,15,9,3],
+                                            mode: 'lines',
+                                            name: 'rep1',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        data[0]=trace0;
+                                        var trace1 = {
+                                            x: [100,125,150,175,200,225,250,275,300,325,350,375,400,425,450,475,500,525,550,575,600,625,650,675,700,725,750,775,800,825,850,875,900,925,950,975,1000],
+                                            y: [1905,1488,1201,1122,983,906,806,1006,819,660,600,459,415,367,303,274,222,219,188,140,110,67,80,61,49,64,39,62,24,45,39,21,29,16,8,8,7],
+                                            mode: 'lines',
+                                            name: 'rep2',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        data[1]=trace1;
+                                        var trace2 = {
+                                            x: [100,125,150,175,200,225,250,275,300,325,350,375,400,425,450,475,500,525,550,575,600,625,650,675,700,725,750,775,800,825,850,875,900,925,950,975,1000],
+                                            y: [1687,1316,1055,791,778,706,691,774,602,375,372,355,308,203,203,148,113,95,76,69,65,61,51,60,31,27,21,20,10,23,21,16,8,10,6,7,2],
+                                            mode: 'lines',
+                                            name: 'rep3',
+                                            line: {
+                                                dash: 'solid',
+                                                width: 2
+                                            }
+                                        };
+                                        data[2]=trace2;
+                                        var layout = {
+                                            legend: {
+                                                x: 0,
+                                                y: 1.25
+                                            },
+                                            paper_bgcolor:'#eeeeee',
+                                            plot_bgcolor:'#eeeeee',
+                                            width: 850,
+                                            height: 500,
+                                            title: '',
+                                            font: {
+                                                family:"Arial" ,
+                                                size: 13,
+                                                weight: 500,
+                                                color: '#000000'
+                                            },
+                                            yaxis: {
+                                                title: 'Peak Counts',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            },
+                                            xaxis: {
+                                                title: 'Peak Length (bp)',
+                                                titlefont: {
+                                                    family:"Arial" ,
+                                                    size: 13,
+                                                    weight: 500,
+                                                    color: '#000000'
+                                                }
+                                            }
+                                        }
+                                        Plotly.newPlot('line2', data, layout);
+									</script>
+								</div>
+							</section>
+							<section id="directional">
+								<h2 class="page-header">Fraction of Overlapping-Peak Length</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Replicates</th>
+											<th>Sample IP</th>
+											<th>Sample INPUT</th>
+											<th>Overlapping Peak Length</th>
+											<th>All Peak Length</th>
+											<th>Overlapping Length Ratio</th>
+										</tr>
+										</thead>
+											<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>GSM1166136</td>
+												<td>1273493</td>
+												<td>1800938</td>
+												<td>70.71%</td>
+											</tr>
+											<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>GSM1166137</td>
+												<td>1273493</td>
+												<td>2356188</td>
+												<td>54.05%</td>
+											</tr>
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+											</tr>
+											<tr>
+												<td>rep1</td>
+												<td>GSM1166142</td>
+												<td>GSM1166136</td>
+												<td>1016374</td>
+												<td>1800938</td>
+												<td>56.44%</td>
+											</tr>
+											<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>GSM1166138</td>
+												<td>1016374</td>
+												<td>1643678</td>
+												<td>61.84%</td>
+											</tr>
+											<tr>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+												<td>&nbsp;</td>
+											</tr>
+											<tr>
+												<td>rep2</td>
+												<td>GSM1166143</td>
+												<td>GSM1166137</td>
+												<td>1196873</td>
+												<td>2356188</td>
+												<td>50.80%</td>
+											</tr>
+											<tr>
+												<td>rep3</td>
+												<td>GSM1166144</td>
+												<td>GSM1166138</td>
+												<td>1196873</td>
+												<td>1643678</td>
+												<td>72.82%</td>
+											</tr>
+									</table>
+								</div>
+							</section>
+							<section id="lasttable">
+								<h2 class="page-header">Reference Values</h2>
+								<div class="fontawesome-icon-list">
+									<table class="table  table-bordered table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Quality Control Metrics</th>
+											<th>Reference Values (hg19)</th>
+											<th>Rep1</th>
+											<th>Rep2</th>
+											<th>Rep3</th>
+										</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Fraction of Reads in Peaks (FRiP)</td>
+												<td>&gt;15%</td>
+												<td>15.27%</td>
+												<td>18.85%</td>
+												<td>13.75%</td>
+											</tr>
+											<tr>
+												<td>Nonredundant Fraction (NRF)</td>
+												<td>&gt;20%</td>
+												<td>47.63%</td>
+												<td>48.29%</td>
+												<td>48.32%</td>
+											</tr>
+											<tr>
+												<td>Uniquely Mapping Read Counts</td>
+												<td>&gt;11M</td>
+												<td>19178688</td>
+												<td>18311606</td>
+												<td>18179205</td>
+											</tr>
+											<tr>
+												<td>Detected Gene Counts</td>
+												<td>&gt;17000</td>
+												<td>18620</td>
+												<td>18644</td>
+												<td>18518</td>
+											</tr>
+											<tr>
+												<td>Detected m6A Peak Counts</td>
+												<td>&gt;8000</td>
+												<td>12022</td>
+												<td>14812</td>
+												<td>11156</td>
+											</tr>
+											<tr>
+												<td>rRNA &amp; tRNA Contamination Ratio</td>
+												<td>&lt;21%</td>
+												<td>3.17%</td>
+												<td>2.89%</td>
+												<td>2.93%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</section>
+						</div>
+					</div>
+				</div>
+			</div>
+			<style>
+				footer.main-footer {
+					padding: 0 !important;
+				}
+			</style>
+			<!--尾部-->
+			<footer class="main-footer sticky footer-type-1" style="padding: 0 !important;">
+				<div class="footer-inner" style="display: table;
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+margin-top: 13px;">
+					<div class="footer-text" style="display: table;
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+">
+						<h4><b>For more information, please visit our MeRIP-seq quality database (<a target="_blank" href="http://epigenome.sysu.edu.cn/merip">http://epigenome.sysu.edu.cn/merip</a>).</b></h4>
+					</div>
+
+				</div>
+				<div class="go-up">
+					<a href="#" rel="go-top" style="    position: relative;
+    bottom: 27px;
+    right: 23px;
+}">
+						<i class="fa-angle-up">^</i>
+					</a>
+				</div>
+			</footer>
+		</div>
+	</div>
+</body>
+</html>

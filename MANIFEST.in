@@ -1,0 +1,4 @@
+include README.md
+include metaqc/data/*
+include metaqc/data/css/*
+include metaqc/data/js/*

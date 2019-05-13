@@ -1,0 +1,487 @@
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+"""
+Benchmarking for MeRIP-seq data analysis and quality control
+
+"""
+import sys
+import os
+import argparse
+#import profile
+#from configparser import ConfigParser
+#import codecs
+from pkg_resources import resource_filename, resource_listdir
+from time import time
+from multiprocessing import Process
+
+
+from metaqc.modules.checkenv.checkEnv import check_env, copy_file, remove_dir
+from metaqc.modules.mappinginfo.mappinginfoNew import mappingInfo
+# from metaqc.modules.html.html import html_header, html_footer, uniquelyMappingRatio_table_plot, NRF_table_plot,\
+#     PBC_table_plot, contamination_table_plot, saturation_table_plot, sd_table_plot, frip_table_plot, metagene_table_plot,\
+#     peakLength_table_plot, peak_overlap_length_fraction_table_plot, peak_motif_table_plot
+
+from metaqc.modules.contamination.contaminationNew import contamination
+from metaqc.modules.saturation.saturation import saturation, saturation_info
+#from hoper.modules.peakcalling.callpeak import callPeak
+from metaqc.modules.peakcalling.callpeakNew import callPeak
+#from hoper.modules.peakcalling.SSD import ssd
+from metaqc.modules.stdev.sd import sd
+from metaqc.modules.frip.FRiP import frip
+from metaqc.modules.metagene.metagene import multiple_metagene
+from metaqc.modules.peaklengthdis.peakLengthDis import peak_length_dis
+from metaqc.modules.peakoverlaplengthfraction.peakOverlapLengthFration import peak_overlap_length_fraction
+# from metaqc.modules.motif.peakMotif import motif
+from metaqc.modules.refvalues.refValues import ref_values
+from metaqc.modules.html.displayResults import makeHtml
+
+
+def samples_dict(args=None, sampletype=None):
+    sample_info=dict()
+    tmp_list=[]
+    if args:
+        for i in args:
+            tmp_tuple = tuple(i.split(','))
+            #tmp_tuple = tuple([item.strip() for item in i.split(',')])
+            tmp_list.append(tmp_tuple)
+        #print(tmp_list)
+        sample_info[sampletype]=tmp_list
+        #print(sample_info)
+    else:
+        print('Warning: {} is None!'.format(sampletype))
+        #raise
+        sys.exit()
+    return sample_info
+
+
+def parse_args(args=None):
+    """
+    parse input arguments
+    """
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("-p", "--ip", nargs='*', metavar="IP_Samples", required=True,
+                        help="Using comma to separate sample replicates in same treat, space to separate diffrent treats for m6A-seq experiments.")
+    parser.add_argument("-u", "--input", nargs='*', metavar="Input_Samples", required=True,
+                        help="Using comma to separate sample replicates in same treat, space to separate diffrent treats for coresponding input RNA-seq experiments.")
+    parser.add_argument("-o", "--output", nargs=1, metavar="Output_Drectory", required=True,
+                        help="Supply output directory path.")
+    parser.add_argument("-t", "--type", nargs=1, metavar="SE_or_PE", required=True,
+                        help = "SE means single end sequencing. PE means pair end sequencing.")
+    parser.add_argument("-s", "--species", nargs = 1, metavar="hg19_or_hg38_or_mm9_or_mm10", required=True,
+                        help = "hg19 or hg38 means H. sapiens. mm9 or mm10 means M. musculus")
+    parser.add_argument("-g", "--gtf", nargs=1, metavar="gtf file", required=True,
+                        help="gtf file from UCSC, included in gene_id field, such as ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/Homo_sapiens/UCSC/hg19/Homo_sapiens_UCSC_hg19.tar.gz")
+    # parser.add_argument("-r", "--readLength", nargs=1, metavar="read length", required=True,
+    #                     help="Supply read length for peak calling.")
+    return parser.parse_args(args)
+
+
+def main(args=None):
+
+    time_start = time()
+    args = parse_args(args)
+    ip=args.ip    # return a list  ['W1.bam,W2.bam', 'W3.bam,W4.bam']
+    ## New added
+    ## return ['/public/data/guoshi/bam/human_se/GSM1166142.bam,/public/data/guoshi/bam/human_se/GSM1166143.bam,/public/data/guoshi/bam/human_se/GSM1166144.bam']
+    print(ip)
+    replicate_number = len(ip[0].split(','))
+    print('Replicate samples number is: ' + str(replicate_number))
+
+    input=args.input  # return a list  ['w1.bam,w2.bam', 'w3.bam,w4.bam']
+    #print ip
+    #print input
+    ## Check whether IP and INPUT is the same sample
+    ip_check = []
+    input_check = []
+    for i in ip:
+        ip_check.extend(i.split(','))
+
+    for j in input:
+        input_check.extend(j.split(','))
+
+    for k in range(len(ip_check)):
+        if ip_check[k] == input_check[k]:
+            print("\nIP sample: " + ip_check[k] + '\t' + "INPUT sample: " + input_check[k])
+            print("Warning: IP and INPUT is the same sample. Please check it again!")
+            sys.exit()
+
+    ip = samples_dict(ip, 'ip') #ip is a dict
+    input = samples_dict(input, 'input') # a dict
+    samples=dict(ip, **input)  # return {'ip': [('W1.bam', 'W2.bam'), ('W3.bam',)], 'input': [('W4.bam',), ('W5.bam', 'W6.bam')]}
+    #print samples
+
+    path = args.output[0] # return a list ['./test']
+    Type = args.type[0]  # return a list  ['SE']
+    species = args.species[0]  # return a list ['hg19']
+    #print path
+    #print type
+    #print species
+    gtf=args.gtf[0]
+    #print gtf
+    ## read length
+    # read_length = args.readLength[0]
+    #print(read_length)
+
+    ## check environment variable
+    check_env()
+
+    dirname = path.strip('/')
+    filename = 'MetaQC.html'
+
+    if not os.path.exists(dirname):
+        os.mkdir(dirname)
+        #os.chdir(dirname)
+    else:
+        print('Warning: {} already exits, try another!'.format(dirname))
+        #raise
+        sys.exit()
+
+    # parse built-in data file path
+    DATA_PATH = resource_filename('metaqc', 'data/')  # return the path str /media/chaigs/softwares/hoper/hoper/data/
+
+
+    # species_dict={'hg19':DATA_PATH+'hg19_rRNA_tRNA.bed', 'hg38':DATA_PATH+'hg38_rRNA_tRNA.bed',
+    #               'mm9':DATA_PATH+'mm9_rRNA_tRNA.bed', 'mm10':DATA_PATH+'mm10_rRNA_tRNA.bed'}
+    # parse the built-in rRNA_tRNA.bed file path. Used for contamination of rRNA and tRNA.
+    rRNA_tRNA_contamination = {'hg19':DATA_PATH+'hg19_rRNA_tRNA.bed', 'hg38':DATA_PATH+'hg38_rRNA_tRNA.bed',
+                  'mm9':DATA_PATH+'mm9_rRNA_tRNA.bed', 'mm10':DATA_PATH+'mm10_rRNA_tRNA.bed'}
+
+    # the role of refGene is what??  seems to be Useless。 NO, used to detect gene number for saturation.
+    refGene={'hg19':DATA_PATH+'hg19_refgene.bed', 'hg38':DATA_PATH+'hg38_refgene.bed',
+             'mm9':DATA_PATH+'mm9_refgene.bed', 'mm10':DATA_PATH+'mm10_refgene.bed'}
+    ## longest mrna information
+    mrnaInfo = {'hg19': DATA_PATH+'hg19_longest_tx.txt', 'hg38': DATA_PATH+'hg38_longest_tx.txt',
+                'mm9': DATA_PATH+'mm9_longest_tx.txt', 'mm10': DATA_PATH+'mm10_longest_tx.txt'}
+
+    ## New added!! html file
+    html_file = {'rep1': DATA_PATH+'rep1.html', 'rep2': DATA_PATH+'rep2.html', 'rep3': DATA_PATH+'rep3.html'}
+    Key = 'rep' + str(replicate_number)
+    html_File = html_file[Key]
+
+    ## quality control metrics reference values
+    # Ref_values = {'hg19':['>15%', '>20%', '>11M', '>17000', '>8000', '<21%'],
+    #               'mm10':['>2%', '>14%', '>5M', '>13000', '>5000', '<46%']}
+
+
+    # header_file = DATA_PATH+'header.html'
+    # footer_file = DATA_PATH+'footer.html'
+    css_files = DATA_PATH+'css/'
+    js_files = DATA_PATH+'js/'
+
+
+    # html_header(path=dirname, filename=filename)
+
+    ## no return value, results were saved to file/ directory.
+    ## single thread to run mappingInfo
+    # try:
+    #     start_time_first=time()
+    #     # uniquelyMappedRatio_info, NRFlist_info, PBClist_info = mappingInfo(samples=samples, path=dirname, seq_type=Type)
+    #     print('MetaQC is calculating uniquely mapping ratio, NRF and PBC values...')
+    #     mappingInfo(samples=samples, path=dirname, seq_type=Type)
+    #     uniquelyMappingRatio_table_plot(path=dirname, filename=filename)
+    #     NRF_table_plot(path=dirname, filename=filename)
+    #     PBC_table_plot(path=dirname, filename=filename)
+    #     print('Done! Time taken: {:.4f} min'.format((time() - start_time_first) / 60.0))
+    #     print('#####' * 20)
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+
+
+
+    # try:
+    #     # write rRNA & tRNA Contamination Ratio into html
+    #     # contamination_list = contamination(samples=samples, bed=rRNA_tRNA_contamination[species], path=dirname)
+    #     contamination(samples=samples, bed=rRNA_tRNA_contamination[species], path=dirname)
+    #     contamination_table_plot(path=dirname, filename=filename)
+    #
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+
+    ## parallel compute saturation, contamination and peak calling
+    #try:
+    start_time_first = time()
+    #print('MetaQC is calculating uniquely mapping ratio, NRF, PBC, library saturation, library contamination ratio and calling peaks...\n  Peak calling step may take a few hours...')
+    # print ("MetaQC is calling peaks...\n  This step may take several hours...")
+    # print('MetaQC is calculating library contamination ratio...')
+    # print('MetaQC is calculating uniquely mapping ratio, NRF, PBC, rRNA & tRNA contamination ratio...')
+    ## mapping ratio, NRF, PBC
+    # mappingInfo(samples=samples, path=dirname, seq_type=Type)
+    print('MetaQC is calculating uniquely mapping ratio, NRF, PBC...')
+    mappingInfo(samples=samples, path=dirname, seq_type=Type)
+    print('Time taken: {:.4f} min'.format((time() - start_time_first) / 60.0))
+    print()
+    # p1 = Process(target=mappingInfo, args=(samples, dirname, Type))
+    # p1.start()
+    # p1.join()
+
+    # p2 = Process(target=contamination, args=(samples, rRNA_tRNA_contamination[species], dirname))
+    # p2.start()
+    # p2.join()
+    # print('Time taken: {:.4f} min'.format((time() - start_time_first) / 60.0))
+    # print()
+    # p1 = Process(target=mappingInfo, args=(samples, dirname, Type))
+    # p1.start()
+    # p1.join()
+    start_time_second = time()
+    print('MetaQC is calculating rRNA & tRNA contamination ratio...')
+    ## contamination ratio
+    contamination(samples=samples, bed=rRNA_tRNA_contamination[species], path=dirname)
+    print('Time taken: {:.4f} min'.format((time() - start_time_second) / 60.0))
+    print()
+    # p4 = Process(target=contamination, args=(samples, rRNA_tRNA_contamination[species], dirname))
+    # p4.start()
+    # p4.join()
+
+
+    start_time_third = time()
+    print('MetaQC is calculating saturation...')
+    ## saturation
+    p1 = Process(target=saturation, args=(samples, refGene[species], dirname))
+    p1.start()
+    p1.join()
+    print('Time taken: {:.4f} min'.format((time() - start_time_third) / 60.0))
+    print()
+
+    start_time = time()
+    print('Metaqc is calling peaks...\n  Peak calling step may take a few hours...')
+    ## peak calling
+    # p2 = Process(target=callPeak, args=(gtf, samples, dirname, Type, rRNA_tRNA_contamination[species]))
+    # p3 = Process(target=callPeak, args=(gtf, samples, dirname, Type, rRNA_tRNA_contamination[species], read_length))
+    p1 = Process(target=callPeak, args=(gtf, samples, dirname, Type, rRNA_tRNA_contamination[species]))
+    p1.start()
+    p1.join()
+    print('Time taken: {:.4f} min'.format((time() - start_time) / 60.0))
+    print()
+
+    # start_time_second = time()
+    # print('MetaQC is calculating contamination ratio...')
+    # ## contamination
+    # p4 = Process(target=contamination, args=(samples, rRNA_tRNA_contamination[species], dirname))
+    # p4.start()
+    # p4.join()
+    # print('Time taken: {:.4f} min'.format((time() - start_time_second) / 60.0))
+    # print()
+    # # p1.start()
+    # # p2.start()
+    # p3.start()
+    # p4.start()
+    # # p1.join()
+    # # p2.join()
+    # p3.join()
+    # p4.join()
+
+    ## write table and fig into html file
+    # uniquelyMappingRatio_table_plot(path=dirname, filename=filename)
+    # NRF_table_plot(path=dirname, filename=filename)
+    # PBC_table_plot(path=dirname, filename=filename)
+    # contamination_table_plot(path=dirname, filename=filename)
+    # saturation_table_plot(path=dirname, filename=filename)
+    #print('Done! Time taken: {:.4f} min'.format((time() - start_time_second) / 60.0))
+    # print('#####' * 20)
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+
+
+    # try:
+    #     p2 = Process(target=callPeak, args=(gtf, samples, dirname, Type, rRNA_tRNA_contamination[species], read_length))
+    #     p2.start()
+    #     p2.join()
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+
+
+    ## parallel compute stdev, FRiP, metagene, peakMotif and peakLengthDis
+    # try:
+    start_time_fourth = time()
+    #print ("\n\nMetaQC is calculating read distribution dispersion, FRiP value, peak length distribution, motif significance, fraction of overlapping-peak length between replicates and plotting metagene...")
+    # print('MetaQC is calculating FRiP value...')
+    # print('MetaQC is plotting metagene...')
+    # print('MetaQC is calculating peak length distribution...')
+    # print('MetaQC is calculating motif significance...')
+    print('MetaQC is calculating read distribution dispersion...')
+    ## stdev
+    # sd(sample=samples, path=dirname)
+    p1 = Process(target=sd, args=(samples, dirname))
+    p1.start()
+    p1.join()
+    print('Time taken: {:.4f} min'.format((time() - start_time_fourth) / 60.0))
+    print()
+
+    start_time = time()
+    print('MetaQC is calculating FRiP value...')
+    ## FRiP
+    p1 = Process(target=frip, args=(samples, dirname))
+    p1.start()
+    p1.join()
+    print('Time taken: {:.4f} min'.format((time() - start_time) / 60.0))
+    print()
+
+
+    start_time = time()
+    print('MetaQC is plotting metagene...')
+    ## metagene
+    p1 = Process(target=multiple_metagene, args=(samples, mrnaInfo[species], dirname))
+    p1.start()
+    p1.join()
+    print('Time taken: {:.4f} min'.format((time() - start_time) / 60.0))
+    print()
+
+
+    start_time = time()
+    print('MetaQC is calculating peak length distribution...')
+    ## peak length distribution
+    p1 = Process(target=peak_length_dis, args=(samples, dirname))
+    p1.start()
+    p1.join()
+    print('Time taken: {:.4f} min'.format((time() - start_time) / 60.0))
+    print()
+
+
+    # start_time_third = time()
+    # print('MetaQC is calculating motif significance...')
+    # ## motif
+    # p5 = Process(target=motif, args=(samples, dirname, species))
+    # p5.start()
+    # p5.join()
+    # print('Time taken: {:.4f} min'.format((time() - start_time_third) / 60.0))
+    # print()
+
+    start_time = time()
+    print('MetaQC is calculating the fraction of ovlerlapping-peak length between replicates...')
+    ## peak overlap length fraction
+    p1 = Process(target=peak_overlap_length_fraction, args=(samples, dirname))
+    p1.start()
+    p1.join()
+    print('Time taken: {:.4f} min'.format((time() - start_time) / 60.0))
+    print()
+
+
+    # p1.start()
+    # p2.start()
+    # p3.start()
+    # p4.start()
+    # # p5.start()
+    # p6.start()
+    # p1.join()
+    # p2.join()
+    # p3.join()
+    # p4.join()
+    # # p5.join()
+    # p6.join()
+
+    ## write table and fig into html file
+    # sd_table_plot(path=dirname, filename=filename)
+    # frip_table_plot(path=dirname, filename=filename)
+    # metagene_table_plot(path=dirname, filename=filename)
+    # peakLength_table_plot(path=dirname, filename=filename)
+    # peak_overlap_length_fraction_table_plot(path=dirname, filename=filename)
+    # peak_motif_table_plot(path=dirname, filename=filename)
+    # peak_overlap_length_fraction_table_plot(path=dirname, filename=filename)
+
+    # print('Done! Time taken: {:.4f} min'.format((time() - time_start) / 60.0))
+    # print('#####' * 20)
+    # sd_table_plot(path=dirname, filename=filename)
+
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+
+
+
+    # try:
+    #     #calculate FRiP value
+    #     # frip(samples=samples, path=dirname)
+    #     # frip_table_plot(path=dirname, filename=filename)
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+
+
+    # try:
+    #     ## metagene
+    #     # multiple_metagene(samples=samples, mrna_file=mrnaInfo[species], path=dirname)
+    #     # metagene_table_plot(path=dirname, filename=filename)
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+    #
+    # ## peak length distribution
+    # try:
+    #     # peak_length_dis(samples=samples, path=dirname)
+    #     # peakLength_table_plot(path=dirname, filename=filename)
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+
+
+    ## peak overlap length fraction
+    # try:
+    #     start_time_fourth = time()
+    #     print('MetaQC is calculating fraction of overlapping-peak length between replicates...')
+    #
+    #     peak_overlap_length_fraction(samples=samples, path=dirname)
+    #     peak_overlap_length_fraction_table_plot(path=dirname, filename=filename)
+    #     print('Done! Time taken: {:.4f} min'.format((time() - start_time_fourth) / 60.0))
+    #     print('#####' * 20)
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+
+
+    ## peak motif
+    # try:
+    #     motif(samples=samples, path=dirname, species=species)
+    #     peak_motif_table_plot(path=dirname, filename=filename)
+    # except Exception as e:
+    #     print (e)
+    #     sys.exit()
+# '''
+    ## copy css/*.css file
+    try:
+        copy_file(source_dir=css_files, dest_dir=dirname+'/css')
+    except Exception as e:
+        print (e)
+        sys.exit()
+
+    ## copy js/*.js files
+    try:
+        copy_file(source_dir=js_files, dest_dir=dirname+'/js')
+    except Exception as e:
+        print (e)
+        sys.exit()
+#
+#     ## remove tmp/ directory
+    try:
+        remove_dir(path=dirname+'/tmp')
+    except Exception as e:
+        print (e)
+        sys.exit()
+#     html_footer(path=dirname, filename=filename)
+# '''
+    ref_values(path=dirname, species=species)
+    makeHtml(path=dirname, htmlTemplate= html_File, replicateNumber=replicate_number)
+    return
+
+
+if __name__ == "__main__":
+    try:
+        #profile.run('main()')
+        start_time_all = time()
+        main()
+        print('All Work Is Done! Time taken: {:.4f} min'.format((time() - start_time_all) / 60.0))
+        print('#####' * 20)
+    except KeyboardInterrupt:
+        sys.stderr("User interrupt: \n")
+
+
+
+
+
+
+
+
