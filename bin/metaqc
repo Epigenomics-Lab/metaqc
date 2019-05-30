@@ -61,13 +61,13 @@ def parse_args(args=None):
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-p", "--ip", nargs='*', metavar="IP_Samples", required=True,
-                        help="Using comma to separate sample replicates in same treat, space to separate diffrent treats for m6A-seq experiments.")
+                        help="Using comma to separate sample replicates in same treatment for m6A-seq experiments.")
     parser.add_argument("-u", "--input", nargs='*', metavar="Input_Samples", required=True,
-                        help="Using comma to separate sample replicates in same treat, space to separate diffrent treats for coresponding input RNA-seq experiments.")
+                        help="Using comma to separate sample replicates in same treatment for coresponding input RNA-seq experiments.")
     parser.add_argument("-o", "--output", nargs=1, metavar="Output_Drectory", required=True,
                         help="Supply output directory path.")
     parser.add_argument("-t", "--type", nargs=1, metavar="SE_or_PE", required=True,
-                        help = "SE means single end sequencing. PE means pair end sequencing.")
+                        help = "SE means single-end sequencing. PE means pair-end sequencing.")
     parser.add_argument("-s", "--species", nargs = 1, metavar="hg19_or_hg38_or_mm9_or_mm10", required=True,
                         help = "hg19 or hg38 means H. sapiens. mm9 or mm10 means M. musculus")
     parser.add_argument("-g", "--gtf", nargs=1, metavar="gtf file", required=True,
@@ -126,7 +126,8 @@ def main(args=None):
     ## check environment variable
     check_env()
 
-    dirname = path.strip('/')
+    # dirname = path.strip('/')
+    dirname = path
     filename = 'MetaQC.html'
 
     if not os.path.exists(dirname):
